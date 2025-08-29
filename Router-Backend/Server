@@ -1,0 +1,91 @@
+import { Router } from "express";
+import { body, param } from "express-validator";
+import Advisor from "../models/Advisor.js";
+
+const router = Router();
+
+// health check for advisors route
+router.get("/health", (_req, res) => res.json({ ok: true }));
+
+// list advisors with optional query ?q=finance
+router.get("/", async (req, res) => {
+  const q = req.query.q?.trim();
+  const filter = q ? { $or: [
+    { name: new RegExp(q, "i") },
+    { expertise: new RegExp(q, "i") }
+  ] } : {};
+  const advisors = await Advisor.find(filter).sort({ createdAt: -1 }).lean();
+  res.json(advisors);
+});
+
+// get by id
+router.get("/:id",
+  param("id").isMongoId(),
+  async (req, res) => {
+    const adv = await Advisor.findById(req.params.id).lean();
+    if (!adv) return res.status(404).json({ error: "Advisor not found" });
+    res.json(adv);
+  }
+);
+
+// create advisor
+router.post("/",
+  body("name").notEmpty(),
+  body("expertise").notEmpty(),
+  body("email").isEmail(),
+  body("ratePerHour").optional().isFloat({ min: 0 }),
+  async (req, res) => {
+    const advisor = await Advisor.create(req.body);
+    res.status(201).json(advisor);
+  }
+);
+
+// update advisor
+router.put("/:id",
+  param("id").isMongoId(),
+  async (req, res) => {
+    const adv = await Advisor.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!adv) return res.status(404).json({ error: "Advisor not found" });
+    res.json(adv);
+  }
+);
+
+// delete advisor
+router.delete("/:id",
+  param("id").isMongoId(),
+  async (req, res) => {
+    const adv = await Advisor.findByIdAndDelete(req.params.id);
+    if (!adv) return res.status(404).json({ error: "Advisor not found" });
+    res.json({ ok: true });
+  }
+);
+
+export default router;
+
+import express from "express";
+import cors from "cors";
+import morgan from "morgan";
+import "dotenv/config.js";
+import { connectDB } from "./src/db.js";
+import advisorsRoute from "./src/routes/advisors.js";
+import bookingsRoute from "./src/routes/bookings.js";
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(morgan("dev"));
+
+app.get("/api/health", (_req, res) => res.json({ ok: true, service: "advisorhub" }));
+app.use("/api/advisors", advisorsRoute);
+app.use("/api/bookings", bookingsRoute);
+
+const PORT = process.env.PORT || 3000;
+const MONGODB_URI = process.env.MONGODB_URI;
+
+connectDB(MONGODB_URI)
+  .then(() => app.listen(PORT, () => console.log(`🚀 API running on http://localhost:${PORT}`)))
+  .catch(err => {
+    console.error("DB connection failed:", err);
+    process.exit(1);
+  });
+
