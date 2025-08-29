@@ -1,0 +1,30 @@
+{
+  "name": "advisorhub-backend",
+  "version": "1.0.0",
+  "description": "AdvisorHub – simple user–advisor platform API",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node src/seed.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-validator": "^7.0.1",
+    "mongoose": "^8.5.0",
+    "morgan": "^1.10.0"
+  }
+}
+
+PORT=3000
+MONGODB_URI=mongodb://127.0.0.1:27017/advisorhub
+import mongoose from "mongoose";
+
+export async function connectDB(uri) {
+  mongoose.set("strictQuery", true);
+  await mongoose.connect(uri, { autoIndex: true });
+  console.log("✅ MongoDB connected");
+}
