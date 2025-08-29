@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AdvisorHub</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; max-width: 900px; margin: 24px auto; padding: 0 12px; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin: 12px 0; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    input, select, button { padding: 8px 10px; border-radius: 8px; border: 1px solid #ccc; }
+    button { cursor: pointer; }
+    small { color: #666; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>AdvisorHub</h1>
+    <div>
+      <input id="q" placeholder="Search (e.g., Finance)" />
+      <button onclick="loadAdvisors()">Search</button>
+    </div>
+  </header>
+
+  <section id="advisors"></section>
+
+  <div class="card">
+    <h3>Book a session</h3>
+    <div class="row">
+      <input id="b_userName" placeholder="Your name" />
+      <input id="b_userEmail" placeholder="Your email" />
+      <input id="b_advisorId" placeholder="Advisor ID" />
+      <input id="b_slot" placeholder="Slot (e.g., Mon 5-6pm)" />
+      <input id="b_notes" placeholder="Notes (optional)" />
+      <button onclick="createBooking()">Book</button>
+    </div>
+    <small>Tip: copy Advisor ID from cards above.</small>
+  </div>
+
+  <script src="./script.js"></script>
+</body>
+</html>
